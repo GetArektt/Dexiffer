@@ -6,7 +6,7 @@ import re
 default_path = os.getcwd()
 
 
-# suitable format: /example/path/images, "n" for default path
+
 def get_images(path=None):
     if path is None or path == "n":
         path = default_path + "/Data"
@@ -23,6 +23,7 @@ def get_images(path=None):
     return list_of_images
 
 
+# suitable format: /example/path/images, "n" for default path
 def get_path():
     path = str(input("Please enter the path:\n"))
     if path == "\n":
