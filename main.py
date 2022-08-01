@@ -28,7 +28,7 @@ def print_lens_model():
         try:
             print(f"{device}:\n", valid_string(str(image["Exif"][42036])))
         except:
-            print(f"For {device}", "lens model not available ")
+            print(f"For {device}", "lens model not available")
 
 
 print_lens_model()
