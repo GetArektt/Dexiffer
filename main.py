@@ -15,6 +15,7 @@ def get_images(path="/home/arek/PycharmProjects/Dexiffer/Data"):
     return list_of_images
 
 
+# removing 'b*'
 def valid_string(name):
     fixed_string = re.sub(r"b\'([\w\d\s\.\-/]+)\'", r'\1', name)
     return fixed_string
@@ -28,7 +29,7 @@ def print_lens_model():
         try:
             print(f"{device}:\n", valid_string(str(image["Exif"][42036])))
         except:
-            print(f"For {device}", "lens model not available")
+            print(f"For {device}", "lens model not available ")
 
 
 print_lens_model()
