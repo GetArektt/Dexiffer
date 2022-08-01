@@ -69,27 +69,42 @@ def get_exif_data(particular_image, key, value):
             return None
     except KeyError:
         # print(f"key error for {value}")
-        return "Data not found"
+        return ""
 
 
-# def how_much_cropped():
+def how_much_cropped(list_of_resolution):
+    default_resolution = max(list_of_resolution)
+    number_of_items = len(list_of_resolution)
+    cropped_resolution = 0
+    for particular_resolution in list_of_resolution:
+        if particular_resolution != default_resolution:
+            cropped_resolution += 1
+    return str(round((cropped_resolution / number_of_items * 100))) if cropped_resolution != 0 else "0"
 
 
 # creating the bar plot
-def visualise_data(list_of_items, name_of_chart, flag=False):
+def visualise_data(list_of_items, name_of_chart, flag=False, percentage_of_cropped=None):
     elements = collections.Counter(list_of_items)
     result = collections.OrderedDict(elements.most_common())
     keys = list(result.keys())
     values = list(result.values())
-    if flag is True:
+    if flag:
         keys = list(elements.keys())
         values = list(elements.values())
+        if percentage_of_cropped != "0":
+            plt.xlabel(f"Percentage of cropped photos: {percentage_of_cropped}%")
+        else:
+            plt.xlabel(f"No cropped photos found")
     plt.bar(keys, values, color="deepskyblue", width=0.5, align="center")
     plt.ylabel("Quantity")
+
     plt.title(name_of_chart)
     mng = plt.get_current_fig_manager()
     mng.resize(*mng.window.maxsize())
     plt.show()
+
+
+# def filter_displaying_one_item(list_of_items):
 
 
 if __name__ == '__main__':
@@ -123,7 +138,11 @@ if __name__ == '__main__':
 
     print(resolution_per_device)
     for item in data:
-        visualise_data(data[item], item)
+        if item == "ISO" or item == "Resolution":
+            data[item].sort()
+            visualise_data(data[item], item, True)
+        else: visualise_data(data[item], item)
     for device_model in resolution_per_device:
         resolution_per_device[device_model].sort()
-        visualise_data(resolution_per_device[device_model], device_model, True)
+        visualise_data(resolution_per_device[device_model], device_model, True,
+                       how_much_cropped(resolution_per_device[device_model]))
