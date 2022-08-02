@@ -1,9 +1,9 @@
+import collections
 import os
-
-import piexif
 import re
 
-import pandas as pd
+import matplotlib.pyplot as plt
+import piexif
 
 default_path = os.getcwd()
 
@@ -11,16 +11,16 @@ default_path = os.getcwd()
 # load only files with image extensions such as .jpg/.png
 def get_images(path_to_file=None):
     if path_to_file is None or path_to_file == "n":
-        path_to_file = default_path + "/Data"
+        path_to_file = default_path
     list_of_images = []
-    valid_extension = [".jpg", ".png", ".tiff"]
+    valid_extension = [".jpg", ".png", ".tiff", ".rw2"]
     try:
         for image_file in os.listdir(path_to_file):
             extension = os.path.splitext(image_file)[1]
             if extension.lower() not in valid_extension:
                 continue
             list_of_images.append(os.path.join(path_to_file, image_file))
-    except:
+    except os.error:
         print("Error")
     return list_of_images
 
@@ -35,7 +35,7 @@ def get_path():
 
 # converting 'bexample_name' -> example_name
 def valid_string(name):
-    fixed_string = re.sub(r"b\'([\w\d\s.\-/|]+)\'", r'\1', name)
+    fixed_string = re.sub(r"b'([\w\d\s.\-/|()]+)'", r'\1', name)
     return fixed_string
 
 
@@ -58,8 +58,21 @@ def print_exif_data(particular_image, key, value):
         else:
             return None
     except KeyError:
-        print("key error")
-        return None
+        print(f"key error for {value}")
+        return "None"
+
+
+# creating the bar plot
+def visualise_data(list_of_items, name_of_chart):
+    elements = collections.Counter(list_of_items)
+    keys = list(elements.keys())
+    values = list(elements.values())
+    # fig = plt.figure(figsize=(10, 5))
+    plt.bar(keys, values, color="deepskyblue", width=0.5, )
+    plt.ylabel("Quantity")
+    plt.title(name_of_chart)
+    plt.show()
+
 
 if __name__ == '__main__':
     path = get_path()
@@ -77,7 +90,6 @@ if __name__ == '__main__':
         data["ISO"].append(iso)
         edit = print_exif_data(image, "0th", 305)
         data["Edited with"].append(edit)
-    print(data)
-    df = pd.DataFrame(data)
-    df.isnull()
-    print(df[["Manufacturer", "Device", "Lens", "ISO", "Edited with"]].to_string())
+
+    for item in data:
+        visualise_data(data[item], item)
