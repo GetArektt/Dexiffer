@@ -13,7 +13,7 @@ def get_images(path_to_file=None):
     if path_to_file is None or path_to_file == "n":
         path_to_file = default_path
     list_of_images = []
-    valid_extension = [".jpg", ".png", ".tiff", ".rw2"]
+    valid_extension = [".jpg", ".png", ".tiff"]
     try:
         for image_file in os.listdir(path_to_file):
             extension = os.path.splitext(image_file)[1]
@@ -47,7 +47,8 @@ def valid_ifd_key(image_data):
         return True
 
 
-def print_exif_data(particular_image, key, value):
+# Access the credentials of a single exif data cell
+def get_exif_data(particular_image, key, value):
     try:
         if valid_ifd_key(particular_image[key][value]):
             particular_device = valid_string(str(particular_image["0th"][272]))
@@ -58,15 +59,16 @@ def print_exif_data(particular_image, key, value):
         else:
             return None
     except KeyError:
-        print(f"key error for {value}")
+        # print(f"key error for {value}")
         return "None"
 
 
 # creating the bar plot
 def visualise_data(list_of_items, name_of_chart):
     elements = collections.Counter(list_of_items)
-    keys = list(elements.keys())
-    values = list(elements.values())
+    result = collections.OrderedDict(elements.most_common())
+    keys = list(result.keys())
+    values = list(result.values())
     plt.bar(keys, values, color="deepskyblue", width=0.5, )
     plt.ylabel("Quantity")
     plt.title(name_of_chart)
@@ -77,17 +79,18 @@ if __name__ == '__main__':
     path = get_path()
     files = get_images(path)
     data = {"Manufacturer": [], "Device": [], "Lens": [], "ISO": [], "Edited with": []}
+
     for file in files:
         image = piexif.load(file)
-        manufacturer = print_exif_data(image, "0th", 271)
+        manufacturer = get_exif_data(image, "0th", 271)
         data["Manufacturer"].append(manufacturer)
-        device = print_exif_data(image, "0th", 272)
+        device = get_exif_data(image, "0th", 272)
         data["Device"].append(device)
-        lens = print_exif_data(image, "Exif", 42036)
+        lens = get_exif_data(image, "Exif", 42036)
         data["Lens"].append(lens)
-        iso = print_exif_data(image, "Exif", 34855)
+        iso = get_exif_data(image, "Exif", 34855)
         data["ISO"].append(iso)
-        edit = print_exif_data(image, "0th", 305)
+        edit = get_exif_data(image, "0th", 305)
         data["Edited with"].append(edit)
 
     for item in data:
