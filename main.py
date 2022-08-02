@@ -53,7 +53,7 @@ def print_exif_data(particular_image, key, value):
             particular_device = valid_string(str(particular_image["0th"][272]))
             try:
                 return valid_string(str(particular_image[key][value]))
-            except:
+            except KeyError:
                 print(f"For {particular_device}", "exif data not available ")
         else:
             return None
@@ -61,18 +61,23 @@ def print_exif_data(particular_image, key, value):
         print("key error")
         return None
 
-
 if __name__ == '__main__':
     path = get_path()
     files = get_images(path)
+    data = {"Manufacturer": [], "Device": [], "Lens": [], "ISO": [], "Edited with": []}
     for file in files:
         image = piexif.load(file)
         manufacturer = print_exif_data(image, "0th", 271)
+        data["Manufacturer"].append(manufacturer)
         device = print_exif_data(image, "0th", 272)
+        data["Device"].append(device)
         lens = print_exif_data(image, "Exif", 42036)
+        data["Lens"].append(lens)
         iso = print_exif_data(image, "Exif", 34855)
+        data["ISO"].append(iso)
         edit = print_exif_data(image, "0th", 305)
-        # resolution = ()                                                                                                #Add later
-        data = {"Manufacturer": manufacturer, "Device": device, "Lens": lens, "ISO": [iso], "Edited with": edit}
-        df = pd.DataFrame(data)
-        print(df)
+        data["Edited with"].append(edit)
+    print(data)
+    df = pd.DataFrame(data)
+    df.isnull()
+    print(df[["Manufacturer", "Device", "Lens", "ISO", "Edited with"]].to_string())
