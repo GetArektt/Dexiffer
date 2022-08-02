@@ -67,7 +67,6 @@ def visualise_data(list_of_items, name_of_chart):
     elements = collections.Counter(list_of_items)
     keys = list(elements.keys())
     values = list(elements.values())
-    # fig = plt.figure(figsize=(10, 5))
     plt.bar(keys, values, color="deepskyblue", width=0.5, )
     plt.ylabel("Quantity")
     plt.title(name_of_chart)
