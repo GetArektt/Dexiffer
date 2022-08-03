@@ -13,7 +13,7 @@ def get_images(path_to_file=None):
     if path_to_file is None or path_to_file == "n":
         path_to_file = default_path
     list_of_images = []
-    valid_extension = [".jpg", ".png", ".tiff"]
+    valid_extension = [".jpg", ".png", ".tiff", ".rw2"]
     try:
         for image_file in os.listdir(path_to_file):
             extension = os.path.splitext(image_file)[1]
