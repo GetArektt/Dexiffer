@@ -2,9 +2,7 @@ import pytest
 import dexiffer
 
 
-# def test_get_images():
 
-# def test_get_path():
 
 def test_valid_ifd_key():
     my_dict = {"0th": {271: "Samsung"}, "Exif": {42036: "Sony", 42037: None}}
