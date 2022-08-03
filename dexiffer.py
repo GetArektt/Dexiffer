@@ -35,6 +35,8 @@ def get_path():
 
 # converting 'bexample_name' -> example_name
 def valid_string(name):
+    if not isinstance(name, str):
+        raise TypeError
     fixed_string = re.sub(r"b'([\w\d\s.\-/|()]+)'", r'\1', name)
     return fixed_string
 
@@ -44,6 +46,8 @@ def valid_ifd_key(image_data):
     if image_data is None:
         return False
     else:
+        if not isinstance(image_data, str):
+            raise TypeError
         return True
 
 
@@ -60,7 +64,7 @@ def get_exif_data(particular_image, key, value):
             return None
     except KeyError:
         # print(f"key error for {value}")
-        return "None"
+        return "Data not found"
 
 
 # creating the bar plot
@@ -69,9 +73,11 @@ def visualise_data(list_of_items, name_of_chart):
     result = collections.OrderedDict(elements.most_common())
     keys = list(result.keys())
     values = list(result.values())
-    plt.bar(keys, values, color="deepskyblue", width=0.5, )
+    plt.bar(keys, values, color="deepskyblue", width=0.5, align="center")
     plt.ylabel("Quantity")
     plt.title(name_of_chart)
+    mng = plt.get_current_fig_manager()
+    mng.resize(*mng.window.maxsize())
     plt.show()
 
 
