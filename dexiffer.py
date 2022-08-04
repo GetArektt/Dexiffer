@@ -13,13 +13,15 @@ def get_images(path_to_file=None):
     if path_to_file is None or path_to_file == "n":
         path_to_file = default_path
     list_of_images = []
-    valid_extension = [".jpg", ".png", ".tiff", ".rw2"]
+    valid_extension = [".jpg", ".png", ".tiff", ".rw2", ".dng"]
     try:
         for image_file in os.listdir(path_to_file):
+            name = os.path.splitext(image_file)[0]
             extension = os.path.splitext(image_file)[1]
             if extension.lower() not in valid_extension:
                 continue
-            list_of_images.append(os.path.join(path_to_file, image_file))
+            if name not in list_of_images:
+                list_of_images.append(os.path.join(path_to_file, image_file))
     except os.error:
         print("Error")
     return list_of_images
@@ -91,23 +93,33 @@ if __name__ == '__main__':
 
     path = get_path()
     files = get_images(path)
-    data = {"Manufacturer": [], "Device": [], "Lens": [], "ISO": [], "Edited with": [], "Cropped": []}
+    data = {"Manufacturer": [], "Device": [], "Lens": [], "ISO": [], "Edited with": [], "Resolution": []}
+    resolution_per_device = {}
 
     for file in files:
         image = piexif.load(file)
+
         manufacturer = get_exif_data(image, "0th", 271)
-        data["Manufacturer"].append(manufacturer)
         device = get_exif_data(image, "0th", 272)
-        data["Device"].append(device)
         lens = get_exif_data(image, "Exif", 42036)
-        data["Lens"].append(lens)
         iso = get_exif_data(image, "Exif", 34855)
-        data["ISO"].append(iso)
         edit = get_exif_data(image, "0th", 305)
+
+        data["Manufacturer"].append(manufacturer)
+        data["Device"].append(device)
+        data["Lens"].append(lens)
+        data["ISO"].append(iso)
         data["Edited with"].append(edit)
         if isinstance(get_exif_data(image, "Exif", 40962), int) and isinstance(get_exif_data(image, "Exif", 40963),
                                                                                int):
-            cropped = get_exif_data(image, "Exif", 40962) * get_exif_data(image, "Exif", 40963)
-            data["Cropped"].append(str(round(cropped / 1000000)))
+            resolution = get_exif_data(image, "Exif", 40962) * get_exif_data(image, "Exif", 40963)
+            if device not in resolution_per_device:
+                resolution_per_device.update({device: []})
+            resolution_per_device[device].append(resolution)
+            data["Resolution"].append(str(round(resolution / 1000000)))
+
+    print(resolution_per_device)
     for item in data:
         visualise_data(data[item], item)
+    for particular_device in resolution_per_device:
+        visualise_data(resolution_per_device[particular_device], particular_device)
