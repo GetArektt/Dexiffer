@@ -76,11 +76,14 @@ def get_exif_data(particular_image, key, value):
 
 
 # creating the bar plot
-def visualise_data(list_of_items, name_of_chart):
+def visualise_data(list_of_items, name_of_chart, flag=False):
     elements = collections.Counter(list_of_items)
     result = collections.OrderedDict(elements.most_common())
     keys = list(result.keys())
     values = list(result.values())
+    if flag is True:
+        keys = list(elements.keys())
+        values = list(elements.values())
     plt.bar(keys, values, color="deepskyblue", width=0.5, align="center")
     plt.ylabel("Quantity")
     plt.title(name_of_chart)
@@ -115,11 +118,12 @@ if __name__ == '__main__':
             resolution = get_exif_data(image, "Exif", 40962) * get_exif_data(image, "Exif", 40963)
             if device not in resolution_per_device:
                 resolution_per_device.update({device: []})
-            resolution_per_device[device].append(resolution)
+            resolution_per_device[device].append(str(round(resolution / 1000000, 4)))
             data["Resolution"].append(str(round(resolution / 1000000)))
 
     print(resolution_per_device)
     for item in data:
         visualise_data(data[item], item)
-    for particular_device in resolution_per_device:
-        visualise_data(resolution_per_device[particular_device], particular_device)
+    for device_model in resolution_per_device:
+        resolution_per_device[device_model].sort()
+        visualise_data(resolution_per_device[device_model], device_model, True)
