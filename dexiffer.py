@@ -46,17 +46,20 @@ def valid_ifd_key(image_data):
     if image_data is None:
         return False
     else:
-        if not isinstance(image_data, str):
-            raise TypeError
+        # if not isinstance(image_data, str) or not isinstance(image_data, int):
+        #     raise TypeError
+        #     pass
         return True
 
 
-# Access the credentials of a single exif data cell
+# Access the details of a single exif data cell
 def get_exif_data(particular_image, key, value):
     try:
         if valid_ifd_key(particular_image[key][value]):
             particular_device = valid_string(str(particular_image["0th"][272]))
             try:
+                if value == 40962 or value == 40963:
+                    return int(particular_image[key][value])
                 return valid_string(str(particular_image[key][value]))
             except KeyError:
                 print(f"For {particular_device}", "exif data not available ")
@@ -65,6 +68,9 @@ def get_exif_data(particular_image, key, value):
     except KeyError:
         # print(f"key error for {value}")
         return "Data not found"
+
+
+# def how_much_cropped():
 
 
 # creating the bar plot
@@ -82,9 +88,10 @@ def visualise_data(list_of_items, name_of_chart):
 
 
 if __name__ == '__main__':
+
     path = get_path()
     files = get_images(path)
-    data = {"Manufacturer": [], "Device": [], "Lens": [], "ISO": [], "Edited with": []}
+    data = {"Manufacturer": [], "Device": [], "Lens": [], "ISO": [], "Edited with": [], "Cropped": []}
 
     for file in files:
         image = piexif.load(file)
@@ -98,6 +105,9 @@ if __name__ == '__main__':
         data["ISO"].append(iso)
         edit = get_exif_data(image, "0th", 305)
         data["Edited with"].append(edit)
-
+        if isinstance(get_exif_data(image, "Exif", 40962), int) and isinstance(get_exif_data(image, "Exif", 40963),
+                                                                               int):
+            cropped = get_exif_data(image, "Exif", 40962) * get_exif_data(image, "Exif", 40963)
+            data["Cropped"].append(str(round(cropped / 1000000)))
     for item in data:
         visualise_data(data[item], item)
